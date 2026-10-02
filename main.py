@@ -56,7 +56,7 @@ dp = Dispatcher()
 
 
 # =========================
-# HANDLERS
+# HANDLERS & LOGIC
 # =========================
 @dp.chat_join_request()
 async def process_join_request(chat_join_request: ChatJoinRequest):
@@ -106,10 +106,7 @@ async def get_subscription_keyboard(unsubscribed_channels: list, is_insta_clicke
 def get_main_menu_keyboard():
     buttons = [
         [InlineKeyboardButton(text="🎬 Kinolarni qidirish", callback_data="search_info")],
-        [
-            InlineKeyboardButton(text="ℹ️ Bot haqida", callback_data="about_bot"),
-            InlineKeyboardButton(text="📞 Bog'lanish", url=CONTACT_ADMIN)
-        ]
+        [InlineKeyboardButton(text="ℹ️ Bot haqida", callback_data="about_bot")]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -137,25 +134,34 @@ async def start_handler(message: types.Message):
 
 @dp.callback_query(F.data == "go_to_instagram")
 async def go_to_instagram_callback(callback: types.CallbackQuery):
-    INSTAGRAM_CLICKED.add(callback.from_user.id)
     insta_keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="👉 Instagram'ga o'tish", url=INSTAGRAM_URL)],
+            [InlineKeyboardButton(text="👉 Instagram'ga o'tish", url=INSTAGRAM_URL, callback_data="track_insta")],
             [InlineKeyboardButton(text="✅ A'zo bo'ldim, tekshirish", callback_data="check_sub")]
         ]
     )
-    await callback.message.answer("📸 <b>Quyidagi tugma orqali Instagram sahifamizga o'ting:</b>", reply_markup=insta_keyboard, parse_mode="HTML")
+    await callback.message.answer(
+        "📸 <b>Quyidagi tugma orqali Instagram sahifamizga o'ting va obuna bo'ling:</b>",
+        reply_markup=insta_keyboard,
+        parse_mode="HTML"
+    )
+    await callback.answer()
+
+
+@dp.callback_query(F.data == "track_insta")
+async def track_insta_callback(callback: types.CallbackQuery):
+    INSTAGRAM_CLICKED.add(callback.from_user.id)
     await callback.answer()
 
 
 @dp.callback_query(F.data == "check_sub")
 async def check_subscription_callback(callback: types.CallbackQuery):
     user_id = callback.from_user.id
+    
+    # URL tugmalari callback bermasligi sababli "Instagram sahifamiz" oynasiga kirganligini belgilaymiz
+    INSTAGRAM_CLICKED.add(user_id)
+    
     unsubbed, is_insta_clicked = await check_user_subscriptions(user_id)
-
-    if not is_insta_clicked:
-        await callback.answer("⚠️ Avval «📸 Instagram sahifamiz» tugmasini bosishingiz shart!", show_alert=True)
-        return
 
     if unsubbed:
         await callback.answer("❌ Hali barcha Telegram kanallariga a'zo bo'lmadingiz!", show_alert=True)
@@ -177,12 +183,20 @@ async def check_subscription_callback(callback: types.CallbackQuery):
 
 @dp.callback_query(F.data == "about_bot")
 async def about_bot_callback(callback: types.CallbackQuery):
+    about_keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="📞 Bog'lanish", url=CONTACT_ADMIN)]
+        ]
+    )
     text = (
         "<b>🤖 Bot haqida ma'lumot:</b>\n\n"
-        "🎥 <b>Kino Bot</b> — kinolarni kodi orqali yuklab olish bot.\n"
-        "👨‍💻 <b>Bog'lanish:</b> @Asqarov_Hikmatillo"
+        "🎥 <b>Kino Bot</b> — ushbu bot orqali siz kinolar va seriallarni kodi orqali osongina yuklab olishingiz mumkin.\n\n"
+        "⚡️ <b>Imkoniyatlar:</b>\n"
+        "• Yuqori tezlik va HD sifat 💎\n"
+        "• Reklamasiz va qulay qidiruv 🔍\n"
+        "• Doimiy yangilanib boruvchi kino baza 📈"
     )
-    await callback.message.answer(text, parse_mode="HTML")
+    await callback.message.answer(text, reply_markup=about_keyboard, parse_mode="HTML")
     await callback.answer()
 
 
