@@ -102,7 +102,7 @@ async def get_subscription_keyboard(unsubscribed_channels: list):
 def get_main_menu_keyboard():
     buttons = [
         [InlineKeyboardButton(text="🎬 Kinolarni qidirish", callback_data="search_info")],
-        [InlineKeyboardButton(text="ℹ️ Bot haqida", callback_data="about_bot")]
+        [InlineKeyboardButton(text="ℹ️️ Bot haqida", callback_data="about_bot")]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -203,7 +203,7 @@ async def search_movie_handler(message: types.Message):
 
 
 # =========================
-# CRON-JOB VA PING UCHUN ROUTE
+# CRON-JOB VA PING ROUTE
 # =========================
 async def handle_ping(request):
     return web.Response(text="Bot is active!", status=200)
@@ -217,7 +217,7 @@ async def on_startup(bot: Bot):
         "🍿 Rasmiy Kino va Seriallar Boti!\n\n"
         "🎬 Botimizda quyidagi turdagi barcha sara kinolarni kodi orqali yuklab olishingiz mumkin:\n"
         "▫️ 🎭 Drama\n"
-        "▫️️ ❤️ Melodrama\n"
+        "▫️ ❤️ Melodrama\n"
         "▫️ 💥 Boevik & Otryad\n"
         "▫️ 😂 Komediya\n"
         "▫️ 😱 Triller & Detektiv\n"
@@ -253,9 +253,8 @@ dp.shutdown.register(on_shutdown)
 # =========================
 app = web.Application()
 
-# Asosiy URL va Ping so'rovlari uchun javob sahifasi
-app.router.add_get("/", handle_ping)
-app.router.add_head("/", handle_ping)
+# Ping va GET/HEAD so'rovlari uchun to'g'ri sozlangan yo'nalishlar
+app.router.add_route('*', '/', handle_ping)
 
 SimpleRequestHandler(
     dispatcher=dp,
