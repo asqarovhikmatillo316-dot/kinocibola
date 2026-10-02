@@ -49,7 +49,6 @@ CONTACT_ADMIN = "https://t.me/Asqarov_Hikmatillo"
 TARGET_CHANNEL = "@kinooooooolar"
 
 JOIN_REQUESTS = {}
-INSTAGRAM_CLICKED = set()
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
@@ -87,18 +86,16 @@ async def check_user_subscriptions(user_id: int):
             logging.error(f"Xatolik ({channel['name']}): {e}")
             unsubscribed_channels.append(channel)
 
-    is_insta_clicked = user_id in INSTAGRAM_CLICKED
-    return unsubscribed_channels, is_insta_clicked
+    return unsubscribed_channels
 
 
-async def get_subscription_keyboard(unsubscribed_channels: list, is_insta_clicked: bool):
+async def get_subscription_keyboard(unsubscribed_channels: list):
     buttons = []
     for ch in unsubscribed_channels:
         buttons.append([InlineKeyboardButton(text=f"📢 {ch['name']}ga a'zo bo'lish", url=ch["url"])])
 
-    if not is_insta_clicked:
-        buttons.append([InlineKeyboardButton(text="📸 Instagram sahifamiz", callback_data="go_to_instagram")])
-
+    # Instagram to'g'ridan-to'g'ri URL tugmasi sifatli qo'shiladi
+    buttons.append([InlineKeyboardButton(text="📸 Instagram sahifamiz", url=INSTAGRAM_URL)])
     buttons.append([InlineKeyboardButton(text="✅ A'zolikni tekshirish", callback_data="check_sub")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -113,9 +110,9 @@ def get_main_menu_keyboard():
 
 @dp.message(Command("start"))
 async def start_handler(message: types.Message):
-    unsubbed, is_insta_clicked = await check_user_subscriptions(message.from_user.id)
+    unsubbed = await check_user_subscriptions(message.from_user.id)
 
-    if not unsubbed and is_insta_clicked:
+    if not unsubbed:
         text = (
             f"<b>Salom, {message.from_user.first_name}! 👋🍿</b>\n\n"
             f"🎬 <b>Rasmiy Kino qidiruv botiga xush kelibsiz!</b>\n\n"
@@ -128,44 +125,18 @@ async def start_handler(message: types.Message):
             f"🤖 <b>Botimiz xizmatlaridan to'liq va bepul foydalanish uchun</b> quyidagi rasmiy kanallarga hamda Instagram sahifamizga a'zo bo'ling:\n\n"
             f"📌 <i>A'zo bo'lib bo'lgach, «✅ A'zolikni tekshirish» tugmasini bosing!</i>"
         )
-        keyboard = await get_subscription_keyboard(unsubbed, is_insta_clicked)
+        keyboard = await get_subscription_keyboard(unsubbed)
         await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
-
-
-@dp.callback_query(F.data == "go_to_instagram")
-async def go_to_instagram_callback(callback: types.CallbackQuery):
-    insta_keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="👉 Instagram'ga o'tish", url=INSTAGRAM_URL, callback_data="track_insta")],
-            [InlineKeyboardButton(text="✅ A'zo bo'ldim, tekshirish", callback_data="check_sub")]
-        ]
-    )
-    await callback.message.answer(
-        "📸 <b>Quyidagi tugma orqali Instagram sahifamizga o'ting va obuna bo'ling:</b>",
-        reply_markup=insta_keyboard,
-        parse_mode="HTML"
-    )
-    await callback.answer()
-
-
-@dp.callback_query(F.data == "track_insta")
-async def track_insta_callback(callback: types.CallbackQuery):
-    INSTAGRAM_CLICKED.add(callback.from_user.id)
-    await callback.answer()
 
 
 @dp.callback_query(F.data == "check_sub")
 async def check_subscription_callback(callback: types.CallbackQuery):
     user_id = callback.from_user.id
-    
-    # URL tugmalari callback bermasligi sababli "Instagram sahifamiz" oynasiga kirganligini belgilaymiz
-    INSTAGRAM_CLICKED.add(user_id)
-    
-    unsubbed, is_insta_clicked = await check_user_subscriptions(user_id)
+    unsubbed = await check_user_subscriptions(user_id)
 
     if unsubbed:
         await callback.answer("❌ Hali barcha Telegram kanallariga a'zo bo'lmadingiz!", show_alert=True)
-        keyboard = await get_subscription_keyboard(unsubbed, is_insta_clicked)
+        keyboard = await get_subscription_keyboard(unsubbed)
         try:
             await callback.message.edit_reply_markup(reply_markup=keyboard)
         except Exception:
@@ -190,7 +161,7 @@ async def about_bot_callback(callback: types.CallbackQuery):
     )
     text = (
         "<b>🤖 Bot haqida ma'lumot:</b>\n\n"
-        "🎥 <b>Kino Bot</b> — ushbu bot orqali siz kinolar va seriallarni kodi orqali osongina yuklab olishingiz mumkin.\n\n"
+        "🎥 <b>Kino Bot</b> — ushbu bot orqali siz eng saralangan kinolar va seriallarni kodi orqali osongina yuklab olishingiz mumkin.\n\n"
         "⚡️ <b>Imkoniyatlar:</b>\n"
         "• Yuqori tezlik va HD sifat 💎\n"
         "• Reklamasiz va qulay qidiruv 🔍\n"
@@ -211,10 +182,10 @@ async def search_movie_handler(message: types.Message):
     if not message.text:
         return
 
-    unsubbed, is_insta_clicked = await check_user_subscriptions(message.from_user.id)
-    if unsubbed or not is_insta_clicked:
-        text = "<b>⚠️ Botdan foydalanish uchun avval barcha kanallarga va Instagram sahifamizga o'tishingiz shart:</b> 🛑"
-        keyboard = await get_subscription_keyboard(unsubbed, is_insta_clicked)
+    unsubbed = await check_user_subscriptions(message.from_user.id)
+    if unsubbed:
+        text = "<b>⚠️️ Botdan foydalanish uchun avval barcha kanallarga hamda Instagram sahifamizga a'zo bo'ling:</b> 🛑"
+        keyboard = await get_subscription_keyboard(unsubbed)
         await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
         return
 
@@ -233,9 +204,30 @@ async def search_movie_handler(message: types.Message):
 
 
 # =========================
-# WEBHOOK EVENTS
+# WEBHOOK EVENTS & BOT SETTINGS
 # =========================
 async def on_startup(bot: Bot):
+    # Telegram'da start bosishdan oldin ko'rinadigan tavsif matni
+    description_text = (
+        "🍿 Rasmiy Kino va Seriallar Boti!\n\n"
+        "🎬 Botimizda quyidagi turdagi barcha sara kinolarni kodi orqali yuklab olishingiz mumkin:\n"
+        "▫️ 🎭 Drama\n"
+        "▫️ ❤️ Melodrama\n"
+        "▫️ 💥 Boevik & Otryad\n"
+        "▫️ 😂 Komediya\n"
+        "▫️ 😱 Triller & Detshtiv\n"
+        "▫️ 🚀 Fantastika & Koinot\n"
+        "▫️ 📜 Tarixiy va Hujjatli\n\n"
+        "📢 Rasmiy kanalimiz: @kinooooooolar\n"
+        "📞 Murojaat va Reklama: @Asqarov_Hikmatillo"
+    )
+    
+    try:
+        await bot.set_my_description(description_text)
+        await bot.set_my_short_description("🎬 Kodi bo'yicha HD Kinolar va Seriallar Boti 🍿")
+    except Exception as e:
+        logging.error(f"Tavsifni o'rnatishda xatolik: {e}")
+
     await bot.set_webhook(
         url=WEBHOOK_URL,
         secret_token=WEBHOOK_SECRET,
