@@ -46,7 +46,7 @@ CHANNELS = [
 
 INSTAGRAM_URL = "https://www.instagram.com/tillobek_asqarov?utm_source=qr&stkn=d291aXk3YnVyamhn"
 CONTACT_ADMIN = "https://t.me/Asqarov_Hikmatillo"
-TARGET_CHANNEL = "@kinooooooolar"
+# TARGET_CHANNEL = "@kinooooooolar"
 
 JOIN_REQUESTS = {}
 
