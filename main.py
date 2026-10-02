@@ -46,7 +46,7 @@ CHANNELS = [
 
 INSTAGRAM_URL = "https://www.instagram.com/tillobek_asqarov?utm_source=qr&stkn=d291aXk3YnVyamhn"
 CONTACT_ADMIN = "https://t.me/Asqarov_Hikmatillo"
-# TARGET_CHANNEL = "@kinooooooolar"
+TARGET_CHANNEL = "@kinooooooolar"
 
 JOIN_REQUESTS = {}
 
@@ -94,7 +94,6 @@ async def get_subscription_keyboard(unsubscribed_channels: list):
     for ch in unsubscribed_channels:
         buttons.append([InlineKeyboardButton(text=f"📢 {ch['name']}ga a'zo bo'lish", url=ch["url"])])
 
-    # Instagram to'g'ridan-to'g'ri URL tugmasi sifatli qo'shiladi
     buttons.append([InlineKeyboardButton(text="📸 Instagram sahifamiz", url=INSTAGRAM_URL)])
     buttons.append([InlineKeyboardButton(text="✅ A'zolikni tekshirish", callback_data="check_sub")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -123,7 +122,7 @@ async def start_handler(message: types.Message):
         text = (
             f"<b>Salom, {message.from_user.first_name}! 👋✨</b>\n\n"
             f"🤖 <b>Botimiz xizmatlaridan to'liq va bepul foydalanish uchun</b> quyidagi rasmiy kanallarga hamda Instagram sahifamizga a'zo bo'ling:\n\n"
-            f"📌 <i>A'zo bo'lib bo'lgach, «✅ A'zolikni tekshirish» tugmasini bosing!</i>"
+            f"📌 <i>A'zo bo'lib bo mezon bo'lgach, «✅ A'zolikni tekshirish» tugmasini bosing!</i>"
         )
         keyboard = await get_subscription_keyboard(unsubbed)
         await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
@@ -184,7 +183,7 @@ async def search_movie_handler(message: types.Message):
 
     unsubbed = await check_user_subscriptions(message.from_user.id)
     if unsubbed:
-        text = "<b>⚠️️ Botdan foydalanish uchun avval barcha kanallarga hamda Instagram sahifamizga a'zo bo'ling:</b> 🛑"
+        text = "<b>⚠️ Botdan foydalanish uchun avval barcha kanallarga hamda Instagram sahifamizga a'zo bo'ling:</b> 🛑"
         keyboard = await get_subscription_keyboard(unsubbed)
         await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
         return
@@ -211,15 +210,14 @@ async def on_startup(bot: Bot):
     description_text = (
         "🍿 Rasmiy Kino va Seriallar Boti!\n\n"
         "🎬 Botimizda quyidagi turdagi barcha sara kinolarni kodi orqali yuklab olishingiz mumkin:\n"
-        "▫️ 🎭 Drama\n"
+        "▫️️ 🎭 Drama\n"
         "▫️ ❤️ Melodrama\n"
         "▫️ 💥 Boevik & Otryad\n"
         "▫️ 😂 Komediya\n"
-        "▫️ 😱 Triller & Detshtiv\n"
+        "▫️ 😱 Triller & Detektiv\n"
         "▫️ 🚀 Fantastika & Koinot\n"
         "▫️ 📜 Tarixiy va Hujjatli\n\n"
-        "📢 Rasmiy kanalimiz: @kinooooooolar\n"
-        "📞 Murojaat va Reklama: @Asqarov_Hikmatillo"
+        "📞 Reklama va hamkorlik: @Asqarov_Hikmatillo"
     )
     
     try:
