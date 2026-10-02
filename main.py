@@ -46,6 +46,7 @@ CHANNELS = [
 
 INSTAGRAM_URL = "https://www.instagram.com/tillobek_asqarov?utm_source=qr&stkn=d291aXk3YnVyamhn"
 CONTACT_ADMIN = "https://t.me/Asqarov_Hikmatillo"
+MAIN_CHANNEL_URL = "https://t.me/kinoci_bola"
 TARGET_CHANNEL = "@kinooooooolar"
 
 JOIN_REQUESTS = {}
@@ -155,6 +156,7 @@ async def check_subscription_callback(callback: types.CallbackQuery):
 async def about_bot_callback(callback: types.CallbackQuery):
     about_keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
+            [InlineKeyboardButton(text="📢 Rasmiy kanalimiz", url=MAIN_CHANNEL_URL)],
             [InlineKeyboardButton(text="📞 Bog'lanish", url=CONTACT_ADMIN)]
         ]
     )
@@ -172,7 +174,16 @@ async def about_bot_callback(callback: types.CallbackQuery):
 
 @dp.callback_query(F.data == "search_info")
 async def search_info_callback(callback: types.CallbackQuery):
-    await callback.message.answer("🔎 Kino izlash uchun shunchaki kodni chatga yozib yuboring (Masalan: <code>3</code>).", parse_mode="HTML")
+    search_keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="📢 Rasmiy kanalimiz", url=MAIN_CHANNEL_URL)]
+        ]
+    )
+    text = (
+        "🔎 <b>Kino izlash uchun shunchaki kino kodini chatga yozib yuboring (Masalan: <code>3</code>).</b>\n\n"
+        "🍿 Kinolar kodini va eng so'nggi yangiliklarni rasmiy kanalimizdan topishingiz mumkin:"
+    )
+    await callback.message.answer(text, reply_markup=search_keyboard, parse_mode="HTML")
     await callback.answer()
 
 
@@ -215,20 +226,14 @@ async def handle_ping(request):
 async def on_startup(bot: Bot):
     description_text = (
         "🍿 Rasmiy Kino va Seriallar Boti!\n\n"
-        "🎬 Botimizda quyidagi turdagi barcha sara kinolarni kodi orqali yuklab olishingiz mumkin:\n"
-        "▫️ 🎭 Drama\n"
-        "▫️ ❤️ Melodrama\n"
-        "▫️ 💥 Boevik & Otryad\n"
-        "▫️ 😂 Komediya\n"
-        "▫️ 😱 Triller & Detektiv\n"
-        "▫️ 🚀 Fantastika & Koinot\n"
-        "▫️ 📜 Tarixiy va Hujjatli\n\n"
+        "🎬 Botimizda sara kinolarni kodi orqali yuklab olishingiz mumkin.\n\n"
+        "📢 Rasmiy kanalimiz: @kinoci_bola\n"
         "📞 Reklama va hamkorlik: @Asqarov_Hikmatillo"
     )
     
     try:
         await bot.set_my_description(description_text)
-        await bot.set_my_short_description("🎬 Kodi bo'yicha HD Kinolar va Seriallar Boti 🍿")
+        await bot.set_my_short_description("🎬 Kodi bo'yicha HD Kinolar boti 🍿 | @kinoci_bola")
     except Exception as e:
         logging.error(f"Tavsifni o'rnatishda xatolik: {e}")
 
