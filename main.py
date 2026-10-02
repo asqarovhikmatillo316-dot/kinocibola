@@ -33,13 +33,13 @@ WEBHOOK_URL = f"{RENDER_EXTERNAL_URL}{WEBHOOK_PATH}"
 # =========================
 CHANNELS = [
     {
-        "name": "1-Kanal",
-        "url": "https://t.me/+I55yoIA3bYhmZDBi",
+        "name": "NEWS",
+        "url": "https://t.me/+8ibfJL_Q_FU5YzEy",
         "id": -1003973741534
     },
     {
-        "name": "2-Kanal",
-        "url": "https://t.me/+8ibfJL_Q_FU5YzEy",
+        "name": "HD",
+        "url": "https://t.me/+I55yoIA3bYhmZDBi",
         "id": -1004406015595
     },
 ]
@@ -102,7 +102,7 @@ async def get_subscription_keyboard(unsubscribed_channels: list):
 def get_main_menu_keyboard():
     buttons = [
         [InlineKeyboardButton(text="🎬 Kinolarni qidirish", callback_data="search_info")],
-        [InlineKeyboardButton(text="ℹ️️ Bot haqida", callback_data="about_bot")]
+        [InlineKeyboardButton(text="ℹ️ Bot haqida", callback_data="about_bot")]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -253,7 +253,6 @@ dp.shutdown.register(on_shutdown)
 # =========================
 app = web.Application()
 
-# Ping va GET/HEAD so'rovlari uchun to'g'ri sozlangan yo'nalishlar
 app.router.add_route('*', '/', handle_ping)
 
 SimpleRequestHandler(
