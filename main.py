@@ -122,7 +122,7 @@ async def start_handler(message: types.Message):
         text = (
             f"<b>Salom, {message.from_user.first_name}! 👋✨</b>\n\n"
             f"🤖 <b>Botimiz xizmatlaridan to'liq va bepul foydalanish uchun</b> quyidagi rasmiy kanallarga hamda Instagram sahifamizga a'zo bo'ling:\n\n"
-            f"📌 <i>A'zo bo'lib bo mezon bo'lgach, «✅ A'zolikni tekshirish» tugmasini bosing!</i>"
+            f"📌 <i>A'zo bo'lib bo'lgach, «✅ A'zolikni tekshirish» tugmasini bosing!</i>"
         )
         keyboard = await get_subscription_keyboard(unsubbed)
         await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
@@ -203,15 +203,21 @@ async def search_movie_handler(message: types.Message):
 
 
 # =========================
+# CRON-JOB VA PING UCHUN ROUTE
+# =========================
+async def handle_ping(request):
+    return web.Response(text="Bot is active!", status=200)
+
+
+# =========================
 # WEBHOOK EVENTS & BOT SETTINGS
 # =========================
 async def on_startup(bot: Bot):
-    # Telegram'da start bosishdan oldin ko'rinadigan tavsif matni
     description_text = (
         "🍿 Rasmiy Kino va Seriallar Boti!\n\n"
         "🎬 Botimizda quyidagi turdagi barcha sara kinolarni kodi orqali yuklab olishingiz mumkin:\n"
-        "▫️️ 🎭 Drama\n"
-        "▫️ ❤️ Melodrama\n"
+        "▫️ 🎭 Drama\n"
+        "▫️️ ❤️ Melodrama\n"
         "▫️ 💥 Boevik & Otryad\n"
         "▫️ 😂 Komediya\n"
         "▫️ 😱 Triller & Detektiv\n"
@@ -246,6 +252,10 @@ dp.shutdown.register(on_shutdown)
 # MAIN APP
 # =========================
 app = web.Application()
+
+# Asosiy URL va Ping so'rovlari uchun javob sahifasi
+app.router.add_get("/", handle_ping)
+app.router.add_head("/", handle_ping)
 
 SimpleRequestHandler(
     dispatcher=dp,
